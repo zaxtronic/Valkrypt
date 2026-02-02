@@ -1,0 +1,22 @@
+[
+  {
+    "id": "potion_healing",
+    "name": "Poción de Sangre Roja",
+    "type": "CONSUMABLE",
+    "effect": { "heal": "2d4+2" },
+    "description": "Sabe a cobre, pero cierra las heridas."
+  },
+  {
+    "id": "black_root_poison",
+    "name": "Veneno de Raíz Negra",
+    "type": "WEAPON_COATING",
+    "effect": { "damage_bonus": "1d6", "type": "POISON" },
+    "description": "El favorito de Vax. Paraliza los músculos."
+  },
+  {
+    "id": "scroll_incriminating",
+    "name": "Pergamino Cifrado",
+    "type": "QUEST_ITEM",
+    "description": "Tiene el sello del Duque Morven. Una prueba peligrosa."
+  }
+]

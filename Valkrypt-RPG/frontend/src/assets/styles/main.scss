@@ -1,0 +1,31 @@
+/* src/styles/main.scss */
+:root {
+  --color-void: #0b0b0b;       /* Fondo principal */
+  --color-panel: #141414;      /* Paneles UI */
+  --color-gold: #c5a059;       /* Acentos, Bordes */
+  --color-blood: #8a1c1c;      /* Daño, Enemigos */
+  --color-magic: #9b59b6;      /* Magia/Corrupción */
+  --color-text: #c0c0c0;       /* Texto base */
+  
+  --font-title: 'Cinzel Decorative', serif;
+  --font-body: 'Lato', sans-serif;
+}
+
+body {
+  background-color: var(--color-void);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  margin: 0;
+  overflow: hidden; /* Evitar scroll global en app tipo juego */
+}
+
+button {
+  cursor: pointer;
+  font-family: var(--font-title);
+}
+
+.game-container {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+}

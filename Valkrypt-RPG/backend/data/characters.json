@@ -1,0 +1,69 @@
+[
+  {
+    "id": "kaelen",
+    "name": "Kaelen 'Muro de Hierro'",
+    "class": "Warrior",
+    "stats": {
+      "hp": 45,
+      "maxHp": 45,
+      "armor": 16,
+      "strength": 18,
+      "speed": 4
+    },
+    "abilities": ["Golpe Brutal", "Muro de Escudos"],
+    "equipment": ["Rompehuesos (Mandoble)", "Armadura de Placas Abollada"],
+    "status": [],
+    "bio": "Ex-capitán de la Guardia Real. Tanque físico."
+  },
+  {
+    "id": "vax",
+    "name": "Vax 'Dedos de Hollín'",
+    "class": "Rogue",
+    "stats": {
+      "hp": 28,
+      "maxHp": 28,
+      "armor": 14,
+      "strength": 10,
+      "dexterity": 18,
+      "speed": 7
+    },
+    "abilities": ["Apuñalar", "Lanzar Dagas", "Esconderse"],
+    "equipment": ["Dagas Gemelas", "Capa con Bolsillos"],
+    "status": [],
+    "bio": "Ladrón y estafador. Daño crítico y evasión."
+  },
+  {
+    "id": "elara",
+    "name": "Elara Vane",
+    "class": "Arcanist",
+    "stats": {
+      "hp": 22,
+      "maxHp": 22,
+      "armor": 11,
+      "magic": 18,
+      "corruption": 15,
+      "maxCorruption": 100,
+      "speed": 5
+    },
+    "abilities": ["Rayo Arcano", "Invocat Fulgur (AoE)", "Sobrecarga"],
+    "equipment": ["Guantes Runados", "Collar Supresor (Desactivado)"],
+    "status": ["Inestable"],
+    "bio": "Maga noble expulsada. Daño masivo pero sube su Corrupción."
+  },
+  {
+    "id": "sorin",
+    "name": "Sorin",
+    "class": "BloodCleric",
+    "stats": {
+      "hp": 35,
+      "maxHp": 35,
+      "armor": 12,
+      "faith": 16,
+      "speed": 5
+    },
+    "abilities": ["Toque Necrótico", "Transfusión de Vida (Cura a costa de HP propio)"],
+    "equipment": ["Túnicas Raídas", "Rosario de Huesos"],
+    "status": [],
+    "bio": "Clérigo hereje. Sanador que usa su propia sangre."
+  }
+]

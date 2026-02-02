@@ -1,0 +1,69 @@
+{
+  "meta": {
+    "title": "Valkrypt: La Sombra de Piedraprofunda",
+    "author": "Game Master AI",
+    "version": "1.0",
+    "starting_scene": "ch1_intro"
+  },
+  "scenes": {
+    "ch1_intro": {
+      "id": "ch1_intro",
+      "type": "NARRATIVE",
+      "title": "El Perro Ciego",
+      "description": "La lluvia en el reino de Valkrypt no limpiaba los pecados; simplemente los empujaba hacia las alcantarillas. En el distrito bajo, la taberna 'El Perro Ciego' ofrece un refugio rancio.<br><br><strong>Kaelen</strong> está sentado al fondo, de espaldas a la pared. Su armadura está abollada y pintada de gris mate. Sobre la mesa descansa 'Rompehuesos', su mandoble envuelto en trapos.",
+      "options": [
+        {
+          "text": "Pedir otra cerveza y observar la sala.",
+          "next_scene": "ch1_observe_room",
+          "effect": { "gold": -1 }
+        },
+        {
+          "text": "Mirar hacia la mesa de juego donde está Vax.",
+          "next_scene": "ch1_vax_table"
+        }
+      ]
+    },
+    "ch1_observe_room": {
+      "id": "ch1_observe_room",
+      "type": "NARRATIVE",
+      "title": "Sombras y Fe",
+      "description": "El ambiente está cargado. En el rincón más oscuro, <strong>Elara</strong> se ajusta los guantes largos; huele a ozono y sus runas pulsan bajo la piel. En la barra, el clérigo <strong>Sorin</strong> traza círculos en la madera húmeda, sus manos manchadas de sangre seca de sanar a un mendigo.<br><br>—Otra —gruñes a la camarera.",
+      "options": [
+        {
+          "text": "Centrar la atención en el jaleo de Vax.",
+          "next_scene": "ch1_vax_table"
+        }
+      ]
+    },
+    "ch1_vax_table": {
+      "id": "ch1_vax_table",
+      "type": "NARRATIVE",
+      "title": "Dados Cargados",
+      "description": "A tres mesas, <strong>Vax 'Dedos de Hollín'</strong> sonríe. Lanza los dados de hueso. Dos seises. Otra vez.<br><br>—¡Tramposo! —grita el mercader frente a él— ¡Nadie saca tres seises seguidos!<br>Vax acaricia su daga bajo la mesa. —La suerte es una dama caprichosa, amigo mío.",
+      "options": [
+        {
+          "text": "Quedarse al margen.",
+          "next_scene": "ch1_the_breach"
+        },
+        {
+          "text": "Preparar la mano sobre la espada (Intuición).",
+          "next_scene": "ch1_the_breach",
+          "effect": { "combat_bonus": "initiative" }
+        }
+      ]
+    },
+    "ch1_the_breach": {
+      "id": "ch1_the_breach",
+      "type": "CINEMATIC",
+      "title": "La Ruptura",
+      "description": "De repente, el sonido desaparece. No hay explosión, solo un silencio vertiginoso. En el centro de la sala, la realidad se rasga con una luz violeta enfermiza.<br><br><strong>¡CRAACK!</strong><br><br>La gravedad se invierte momentáneamente. Mesas y clientes flotan hacia el techo y caen. De la grieta emerge una pesadilla: forma vaga de lobo, tamaño de caballo, sin ojos, llorando humo negro.",
+      "options": [
+        {
+          "text": "¡AL COMBATE!",
+          "next_scene": "combat_anomaly_beast",
+          "type": "START_COMBAT"
+        }
+      ]
+    }
+  }
+}

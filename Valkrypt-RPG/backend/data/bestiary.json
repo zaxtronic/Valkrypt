@@ -1,0 +1,20 @@
+{
+  "anomaly_beast": {
+    "id": "anomaly_beast",
+    "name": "Bestia de la Anomalía",
+    "type": "ABOMINATION",
+    "stats": {
+      "hp": 120,
+      "maxHp": 120,
+      "armor": 15,
+      "damage": "2d6 + 4",
+      "speed": 8
+    },
+    "ai_behavior": {
+      "aggro_type": "DAMAGE_DEALER",
+      "special_trigger": "HP_LOW",
+      "special_ability": "SCREAM_OF_VOID"
+    },
+    "description": "Una masa de músculo rojo y quitina negra. Llora humo negro por sus cuencas vacías."
+  }
+}
