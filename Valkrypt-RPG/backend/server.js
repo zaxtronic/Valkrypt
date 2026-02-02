@@ -1,17 +1,23 @@
 // server.js
 require('dotenv').config();
 const app = require('./app');
+const { connectDB } = require('./config/db'); // Importamos la conexión a Mongo
+
 const PORT = process.env.PORT || 3000;
 
-// Aquí conectaríamos la Base de Datos en el futuro
-// const db = require('./config/db'); 
+// 1. Intentar conectar a la Base de Datos primero
+connectDB().then(() => {
+    
+    // 2. Si la conexión es exitosa, levantamos el servidor
+    app.listen(PORT, () => {
+        console.log(`\n==================================================`);
+        console.log(`💀 VALKRYPT ENGINE (Backend)`);
+        console.log(`   Estado: ONLINE`);
+        console.log(`   Puerto: ${PORT}`);
+        console.log(`   Base de Datos: MongoDB Atlas (Nativo)`);
+        console.log(`==================================================\n`);
+    });
 
-// Arrancar el servidor
-app.listen(PORT, () => {
-    console.log(`\n==================================================`);
-    console.log(`💀 VALKRYPT ENGINE (Backend)`);
-    console.log(`   Estado: ONLINE`);
-    console.log(`   Puerto: ${PORT}`);
-    console.log(`   Modo:   ${process.env.NODE_ENV}`);
-    console.log(`==================================================\n`);
+}).catch(err => {
+    console.error("❌ Fallo crítico al iniciar el servidor:", err);
 });

@@ -1,11 +1,10 @@
-// src/main.js
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
-import App from './App.vue'
+import App from './App.vue' // Asegúrate que la A es mayúscula
 import router from './router'
 
-// --- ESTA ES LA LÍNEA CORREGIDA ---
-import './assets/styles/main.scss' 
+// Ruta corregida a tus estilos
+import './assets/styles/main.scss'
 
 const app = createApp(App)
 

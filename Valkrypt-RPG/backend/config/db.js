@@ -1,28 +1,24 @@
-const mysql = require('mysql2/promise');
-const config = require('./config');
+// backend/config/db.js
+const { MongoClient } = require('mongodb');
+require('dotenv').config();
 
-let pool = null;
+let dbConnection;
 
 const connectDB = async () => {
     try {
-        pool = mysql.createPool({
-            host: config.db.host,
-            user: config.db.user,
-            password: config.db.password,
-            database: config.db.database,
-            waitForConnections: true,
-            connectionLimit: 10,
-            queueLimit: 0
-        });
-
-        // Test de conexión simple
-        // await pool.query('SELECT 1'); 
-        // console.log('✅ Conexión a Base de Datos MySQL establecida.');
-        console.log('⚠️  Modo Sin Base de Datos (Simulación JSON activa).');
-    } catch (error) {
-        console.error('❌ Error conectando a la Base de Datos:', error.message);
-        console.log('   (El servidor seguirá funcionando con datos locales JSON)');
+        const client = new MongoClient(process.env.MONGO_URI);
+        await client.connect();
+        dbConnection = client.db(process.env.DB_NAME);
+        console.log(`🔥 MongoDB Atlas Conectado: ${process.env.DB_NAME}`);
+    } catch (err) {
+        console.error('❌ Error conectando a Atlas:', err);
+        process.exit(1);
     }
 };
 
-module.exports = { connectDB, pool };
+const getDB = () => {
+    if (!dbConnection) throw new Error('Base de datos no inicializada.');
+    return dbConnection;
+};
+
+module.exports = { connectDB, getDB };

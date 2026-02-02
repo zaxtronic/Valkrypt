@@ -1,31 +1,60 @@
-/* src/styles/main.scss */
+/* src/assets/styles/main.scss */
 :root {
-  --color-void: #0b0b0b;       /* Fondo principal */
-  --color-panel: #141414;      /* Paneles UI */
-  --color-gold: #c5a059;       /* Acentos, Bordes */
-  --color-blood: #8a1c1c;      /* Daño, Enemigos */
-  --color-magic: #9b59b6;      /* Magia/Corrupción */
-  --color-text: #c0c0c0;       /* Texto base */
+  --color-background-dark: #1a1a1a;
+  --color-background-section: #252525;
+  --color-text-primary: #cccccc;
+  --color-text-secondary: #a0a0a0;
+  --color-accent-dark-red: #5a0f0f;
+  --color-accent-gold: #b8a975;
+  --color-accent-parchment: #d4c99e;
+  --color-accent-bronze: #e09d54;
+  --color-border-dark: #333;
+  --color-border-light: #444;
   
-  --font-title: 'Cinzel Decorative', serif;
-  --font-body: 'Lato', sans-serif;
+  --font-heading: 'Cinzel Decorative', cursive;
+  --font-body: 'EB Garamond', serif;
 }
 
 body {
-  background-color: var(--color-void);
-  color: var(--color-text);
+  background-color: #0d0d0d;
+  color: var(--color-text-primary);
   font-family: var(--font-body);
-  margin: 0;
-  overflow: hidden; /* Evitar scroll global en app tipo juego */
+  -webkit-font-smoothing: antialiased;
 }
 
-button {
-  cursor: pointer;
-  font-family: var(--font-title);
+h1, h2, h3, h4, h5 { font-family: var(--font-heading); }
+
+/* Títulos estilo Aethelgard */
+.section-title {
+  color: var(--color-accent-gold);
+  border-bottom: 1px solid var(--color-border-light);
+  padding-bottom: 10px;
+  margin-bottom: 25px;
+  font-size: 1.9em;
 }
 
-.game-container {
-  display: flex;
-  height: 100vh;
-  width: 100vw;
+/* Botones estilo Aethelgard */
+.btn-aethelgard {
+  background-color: var(--color-accent-dark-red);
+  border: 1px solid #8a4f4f;
+  color: #fff;
+  font-family: var(--font-heading);
+  font-weight: bold;
+  padding: 10px 20px;
+  transition: all 0.3s;
+  text-decoration: none;
+  display: inline-block;
+  
+  &:hover {
+    background-color: #8a4f4f;
+    border-color: #a56f6f;
+    color: #fff;
+    box-shadow: 0 0 15px rgba(184, 169, 117, 0.2);
+  }
+  
+  &:disabled {
+    background-color: #333;
+    border-color: #444;
+    cursor: not-allowed;
+  }
 }
