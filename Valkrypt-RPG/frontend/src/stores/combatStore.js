@@ -21,7 +21,7 @@ export const useCombatStore = defineStore('combat', {
                 const data = response.data.combatState;
                 
                 this.isActive = true;
-                this.combatId = data.combatId; // Asegúrate que el backend mande esto
+                this.combatId = data.combatId;
                 this.enemies = data.enemies;
                 this.turnLog = ["¡El combate ha comenzado!"];
             } catch (error) {

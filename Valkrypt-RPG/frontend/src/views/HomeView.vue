@@ -69,9 +69,9 @@ onMounted(() => {
 // Manejar clic en el botón principal
 const handleEnter = () => {
   if (isLoggedIn.value) {
-    router.push('/select'); // Si ya tiene sesión, ir a selección de personaje
+    router.push('/select'); 
   } else {
-    router.push('/login'); // Si no, ir al login
+    router.push('/login'); 
   }
 };
 
@@ -86,7 +86,6 @@ const logout = () => {
 </script>
 
 <style scoped lang="scss">
-/* Estilos Globales heredados de Aethelgard */
 .navbar {
   background-color: #0d0d0d;
   border-bottom: 3px solid var(--color-accent-dark-red);
@@ -112,8 +111,7 @@ const logout = () => {
 .hero-section {
   position: relative;
   height: 85vh;
-  margin-top: 80px; /* Offset navbar */
-  /* Fondo oscuro con textura */
+  margin-top: 80px;
   background: url('https://www.transparenttextures.com/patterns/dark-matter.png'), radial-gradient(circle, #222 0%, #000 100%);
   border-bottom: 1px solid #333;
   

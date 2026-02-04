@@ -1,6 +1,6 @@
 <template>
   <div class="game-layout">
-     <GameMenu @resume="closeMenu" /> <!-- Añade esto arriba del todo -->
+     <GameMenu @resume="closeMenu" />
     
     <!-- HUD IZQUIERDO (Personajes) -->
     <aside class="party-panel">
@@ -99,7 +99,6 @@ const debugWin = () => {
   display: grid;
   grid-template-columns: 280px 1fr;
   height: 100vh;
-  /* Fondo con textura sutil */
   background-color: #050505;
   background-image: radial-gradient(circle at center, #1a1a1a 0%, #000 100%);
   color: #ccc;
@@ -109,7 +108,7 @@ const debugWin = () => {
 /* --- HUD IZQUIERDO --- */
 .party-panel {
   background: #0e0e0e;
-  border-right: 3px solid #795f28; /* Dorado oscuro */
+  border-right: 3px solid #795f28;
   padding: 20px;
   box-shadow: 5px 0 20px rgba(0,0,0,0.8);
   z-index: 10;
@@ -212,7 +211,7 @@ const debugWin = () => {
   position: relative;
 }
 
-/* Decoración esquinas doradas (opcional) */
+/* Decoración esquinas doradas */
 .content-frame::before {
   content: ""; position: absolute; top: 0; left: 0; right: 0; height: 2px;
   background: linear-gradient(90deg, transparent, #c5a059, transparent);
@@ -259,7 +258,7 @@ const debugWin = () => {
     background: #252525;
     border-color: #c5a059;
     border-left-color: #c5a059;
-    padding-left: 25px; /* Efecto de desplazamiento */
+    padding-left: 25px;
     box-shadow: 0 0 15px rgba(197, 160, 89, 0.1);
     
     .icon { color: #8a1c1c; transform: rotate(45deg); }

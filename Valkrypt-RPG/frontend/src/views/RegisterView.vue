@@ -66,7 +66,7 @@
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import api from '../services/api'; // Asegúrate de que api.js tenga el método register
+import api from '../services/api';
 
 const router = useRouter();
 const username = ref('');
@@ -81,7 +81,6 @@ const handleRegister = async () => {
   error.value = '';
   successMsg.value = '';
 
-  // Validación básica frontend
   if (password.value !== confirmPassword.value) {
     error.value = "Las contraseñas no coinciden.";
     return;
@@ -90,10 +89,7 @@ const handleRegister = async () => {
   isLoading.value = true;
 
   try {
-    // Llamada al backend
-    // Asegúrate de que en services/api.js tienes algo como:
-    // register(data) { return api.post('/auth/register', data); }
-    const response = await api.post('/auth/register', {
+    const response = await api.register({
       username: username.value,
       email: email.value,
       password: password.value
@@ -106,7 +102,7 @@ const handleRegister = async () => {
       }, 1500);
     }
   } catch (err) {
-    // Capturar error del backend (ej: usuario duplicado)
+    console.error(err);
     error.value = err.response?.data?.error || "Error al conectar con el servidor.";
   } finally {
     isLoading.value = false;
@@ -133,7 +129,6 @@ const handleRegister = async () => {
   box-shadow: 0 0 30px rgba(197, 160, 89, 0.15);
   position: relative;
 
-  /* Efecto de borde doble simple */
   &::before {
     content: '';
     position: absolute;
@@ -153,7 +148,7 @@ const handleRegister = async () => {
 }
 
 .subtitle {
-  color: #8a1c1c; /* Rojo sangre */
+  color: #8a1c1c;
   text-align: center;
   font-family: 'Cinzel Decorative', serif;
   font-size: 1.2rem;
@@ -165,7 +160,7 @@ const handleRegister = async () => {
 .form-group {
   margin-bottom: 20px;
   position: relative;
-  z-index: 2; /* Por encima del borde decorativo */
+  z-index: 2;
 }
 
 label {

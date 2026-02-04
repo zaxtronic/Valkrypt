@@ -1,9 +1,9 @@
 // backend/services/GameMasterAI.js
 const path = require('path');
-const fs = require('fs/promises'); // Usamos versión asíncrona para leer archivos
+const fs = require('fs/promises');
 const Character = require('../models/Character');
 const GameState = require('../models/GameState');
-const charactersData = require('../data/characters.json'); // Cargamos el JSON
+const charactersData = require('../data/characters.json');
 
 // Ruta al archivo JSON
 const CAMPAIGN_PATH = path.join(__dirname, '../data/campaigns/shadow_of_deepstone.json');
@@ -30,7 +30,6 @@ class GameMasterAI {
         
         console.log(`🤖 GM: Iniciando historia en '${startId}'`);
         
-        // Devolvemos la escena formateada
         return this.getScene(startId, campaign);
     }
 
@@ -51,7 +50,6 @@ class GameMasterAI {
         const party = charactersData.map(charData => new Character(charData));
 
         // 2. Crear el Estado Inicial del Juego (Memoria de la sesión)
-        // NOTA: En una app real, esto se guardaría en Base de Datos o Redis con un sessionID
         const initialState = new GameState(
             this.getScene(startId, campaign),
             party
@@ -62,7 +60,7 @@ class GameMasterAI {
         return {
             scene: this.getScene(startId, campaign),
             party: party, // Enviamos los datos de los PJs al frontend
-            gameState: initialState // (Simplificado para este ejemplo)
+            gameState: initialState // 
         };
     }
 

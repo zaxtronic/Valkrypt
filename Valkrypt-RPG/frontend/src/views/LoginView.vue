@@ -67,7 +67,7 @@ const handleLogin = async () => {
       localStorage.setItem('user', JSON.stringify(response.data.user));
       
       // Ir a la selección de personaje o inicio
-      router.push('/select');
+      router.push('/');
     }
   } catch (err) {
     console.error(err);

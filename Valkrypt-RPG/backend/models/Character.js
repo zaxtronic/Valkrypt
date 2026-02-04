@@ -3,7 +3,6 @@ class Character {
         this.id = data.id;
         this.name = data.name;
         this.class = data.class;
-        // Copiamos stats para no modificar el JSON original por referencia
         this.stats = { ...data.stats };
         this.abilities = data.abilities;
         this.isDead = false;

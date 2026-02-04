@@ -2,14 +2,13 @@ import axios from 'axios';
 
 // Configuración base de Axios
 const api = axios.create({
-    baseURL: 'http://localhost:3000/api', // Tu Backend
+    baseURL: 'http://localhost:3000/api',
     headers: {
         'Content-Type': 'application/json'
     }
 });
 
 // INTERCEPTOR: Si hay un token guardado, enviarlo en cada petición
-// Esto permite al backend saber quién eres
 api.interceptors.request.use((config) => {
     const token = localStorage.getItem('token');
     if (token) {
