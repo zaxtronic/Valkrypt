@@ -8,7 +8,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "electron": "cross-env ELECTRON=true vite",
+    "electron": "fuser -k 5173/tcp || true && cross-env ELECTRON=true vite",
     "electron:build": "vite build && electron-builder"
   },
   "dependencies": {
