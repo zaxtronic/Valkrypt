@@ -10,12 +10,8 @@ const api = axios.create({
     timeout: 10000 // 10s timeout para evitar que la UI se cuelgue eternamente
 });
 
-<<<<<<< HEAD
 // --- INTERCEPTOR REQUEST ---
 // Inyecta el token en cada petición
-=======
-// INTERCEPTOR: Si hay un token guardado, enviarlo en cada petición
->>>>>>> 4a64156f464224e851556985ac770b42376f4415
 api.interceptors.request.use((config) => {
     const token = localStorage.getItem('token');
     if (token) {

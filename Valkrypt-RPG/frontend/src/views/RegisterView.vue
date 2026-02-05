@@ -89,14 +89,10 @@ const handleRegister = async () => {
   isLoading.value = true;
 
   try {
-<<<<<<< HEAD
     // Llamada al backend
     // Asegúrate de que en services/api.js tienes algo como:
     // register(data) { return api.post('/auth/register', data); }
     const response = await api.register ({
-=======
-    const response = await api.register({
->>>>>>> 4a64156f464224e851556985ac770b42376f4415
       username: username.value,
       email: email.value,
       password: password.value

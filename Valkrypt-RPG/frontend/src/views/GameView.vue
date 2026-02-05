@@ -1,5 +1,4 @@
 <template>
-<<<<<<< HEAD
   <div class="game-viewport" :class="{ 'state-combat': gameStore.isCombatMode, 'state-narrative': !gameStore.isCombatMode }">
     <svg style="display: none;">
       <defs>
@@ -14,17 +13,6 @@
         </linearGradient>
       </defs>
     </svg>
-=======
-  <div class="game-layout">
-     <GameMenu @resume="closeMenu" />
-    
-    <!-- HUD IZQUIERDO (Personajes) -->
-    <aside class="party-panel">
-      <div class="panel-header">
-        <h3>GRUPO</h3>
-        <div class="divider"></div>
-      </div>
->>>>>>> 4a64156f464224e851556985ac770b42376f4415
 
     <div class="fx-layer bg-image" :style="{ backgroundImage: `url(${currentBackground})` }"></div>
     <div class="fx-layer fog-overlay"></div>
@@ -259,7 +247,7 @@ onMounted(() => gameStore.initializeGame());
 </script>
 
 <style scoped lang="scss">
-<<<<<<< HEAD
+@use "sass:math";
 @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Cormorant+Garamond:ital,wght@0,300;0,600;0,700;1,400&display=swap');
 
 /* --- VARIABLES DEL SISTEMA (DARK FANTASY) --- */
@@ -267,51 +255,6 @@ onMounted(() => gameStore.initializeGame());
   --c-void: #030304;
   --c-void-light: #0f1014;
   --c-border: rgba(255, 255, 255, 0.08);
-=======
-/* --- LAYOUT GENERAL --- */
-.game-layout {
-  padding-top: 60px;
-  display: grid;
-  grid-template-columns: 280px 1fr;
-  height: 100vh;
-  background-color: #050505;
-  background-image: radial-gradient(circle at center, #1a1a1a 0%, #000 100%);
-  color: #ccc;
-  font-family: 'EB Garamond', serif;
-}
-
-/* --- HUD IZQUIERDO --- */
-.party-panel {
-  background: #0e0e0e;
-  border-right: 3px solid #795f28;
-  padding: 20px;
-  box-shadow: 5px 0 20px rgba(0,0,0,0.8);
-  z-index: 10;
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
-.panel-header h3 {
-  color: #c5a059;
-  font-family: 'Cinzel Decorative', serif;
-  text-align: center;
-  margin: 0 0 10px 0;
-  letter-spacing: 2px;
-}
-
-.divider { height: 1px; background: linear-gradient(90deg, transparent, #c5a059, transparent); margin-bottom: 15px; }
-
-/* Tarjeta de Personaje */
-.char-card {
-  display: flex;
-  align-items: center;
-  background: #141414;
-  border: 1px solid #333;
-  padding: 10px;
-  border-radius: 4px;
-  transition: transform 0.2s;
->>>>>>> 4a64156f464224e851556985ac770b42376f4415
   
   --c-gold-dim: #7a6036;
   --c-gold: #c5a059;
@@ -336,12 +279,14 @@ onMounted(() => gameStore.initializeGame());
 
 /* --- ESTRUCTURA GENERAL --- */
 .game-viewport {
-  position: relative; width: 100vw; height: 100vh;
+  position: relative; 
+  width: 100vw; 
+  height: 100vh;
   overflow: hidden;
   background: var(--c-void);
   color: var(--c-text-primary);
   display: grid;
-  grid-template-columns: 350px 1fr; /* Sidebar más ancha */
+  grid-template-columns: 350px 1fr;
   grid-template-rows: 60px 1fr;
   font-family: var(--f-body);
   user-select: none;
@@ -421,7 +366,6 @@ onMounted(() => gameStore.initializeGame());
 /* --- HERO CARD --- */
 .hero-card {
   position: relative;
-<<<<<<< HEAD
   display: grid; grid-template-columns: 60px 1fr; gap: 12px;
   background: linear-gradient(120deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
   border: 1px solid rgba(255,255,255,0.05);
@@ -433,61 +377,6 @@ onMounted(() => gameStore.initializeGame());
     background: rgba(255,255,255,0.06);
     transform: translateY(-2px);
     box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-=======
-}
-
-/* Decoración esquinas doradas */
-.content-frame::before {
-  content: ""; position: absolute; top: 0; left: 0; right: 0; height: 2px;
-  background: linear-gradient(90deg, transparent, #c5a059, transparent);
-}
-
-.scene-title {
-  font-family: 'Cinzel Decorative', serif;
-  color: #c5a059;
-  font-size: 3rem;
-  margin: 0;
-  text-align: center;
-  text-shadow: 0 2px 10px rgba(0,0,0,0.8);
-}
-
-.ornament { border: 0; height: 1px; background: #333; margin: 20px 0 30px 0; }
-
-.scene-description {
-  font-size: 1.3rem;
-  line-height: 1.8;
-  color: #dcdcdc;
-  text-align: justify;
-  margin-bottom: 40px;
-}
-
-/* Botones de Opción */
-.options-list { display: flex; flex-direction: column; gap: 15px; }
-
-.btn-option {
-  background: linear-gradient(90deg, rgba(30,30,30,0.8) 0%, rgba(10,10,10,0.9) 100%);
-  border: 1px solid #444;
-  border-left: 4px solid #444;
-  color: #c5a059;
-  padding: 15px 20px;
-  font-family: 'Cinzel Decorative', serif;
-  font-size: 1.1rem;
-  text-align: left;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  display: flex; align-items: center;
-
-  .icon { margin-right: 15px; color: #666; transition: 0.3s; }
-
-  &:hover {
-    background: #252525;
-    border-color: #c5a059;
-    border-left-color: #c5a059;
-    padding-left: 25px;
-    box-shadow: 0 0 15px rgba(197, 160, 89, 0.1);
-    
-    .icon { color: #8a1c1c; transform: rotate(45deg); }
->>>>>>> 4a64156f464224e851556985ac770b42376f4415
   }
 
   &.is-active {
@@ -583,7 +472,6 @@ onMounted(() => gameStore.initializeGame());
   position: relative;
   box-shadow: 0 20px 60px rgba(0,0,0,0.6);
   
-  /* Gradiente de "papel viejo" sutil */
   &::before {
     content: ''; position: absolute; inset: 0;
     background: radial-gradient(circle, rgba(197, 160, 89, 0.03), transparent 80%);
@@ -621,7 +509,6 @@ onMounted(() => gameStore.initializeGame());
   text-align: justify; text-justify: inter-word;
 }
 
-/* SINTAXIS EN TEXTO (Deep Selectors) */
 :deep(.syntax-enemy) { color: var(--c-blood-bright); font-weight: 700; text-shadow: 0 0 5px rgba(255,0,0,0.4); }
 :deep(.syntax-item) { color: #2ecc71; border-bottom: 1px dotted #2ecc71; }
 :deep(.syntax-action) { color: var(--c-gold); font-style: italic; font-family: var(--f-title); }
@@ -642,7 +529,7 @@ onMounted(() => gameStore.initializeGame());
 .ancient-btn {
   position: relative; width: 100%; padding: 20px 30px;
   background: transparent; border: none; cursor: pointer;
-  text-align: left; overflow: hidden; group: true;
+  text-align: left; overflow: hidden;
 
   .btn-bg {
     position: absolute; inset: 0; background: #111; opacity: 0.6;
@@ -668,7 +555,6 @@ onMounted(() => gameStore.initializeGame());
     .btn-icon { color: var(--c-gold); transform: scale(1.2); }
   }
   
-  /* Variantes de botón */
   &.combat { 
     .btn-border { border-color: var(--c-blood); }
     &:hover .btn-icon { color: var(--c-blood-bright); }
@@ -693,7 +579,6 @@ onMounted(() => gameStore.initializeGame());
   text-shadow: 0 0 20px var(--c-blood); letter-spacing: 8px; margin: 0;
   position: relative;
   
-  /* Glitch effect simple */
   &::before {
     content: attr(data-text); position: absolute; left: 2px; text-shadow: -1px 0 red; top:0;
     clip-path: polygon(0 0, 100% 0, 100% 30%, 0 30%); animation: glitch 2s infinite linear alternate-reverse;
@@ -710,6 +595,7 @@ onMounted(() => gameStore.initializeGame());
 @keyframes pulse-text { from { opacity: 0.5; } to { opacity: 1; text-shadow: 0 0 10px red; } }
 @keyframes shake { 0% { transform: translate(1px, 1px); } 10% { transform: translate(-1px, -2px); } 20% { transform: translate(-3px, 0px); } 30% { transform: translate(3px, 2px); } 40% { transform: translate(1px, -1px); } 100% { transform: translate(0,0); } }
 @keyframes glitch { 0% { clip-path: inset(40% 0 61% 0); transform: translate(-2px, 2px); } 20% { clip-path: inset(92% 0 1% 0); transform: translate(0); } 40% { clip-path: inset(43% 0 1% 0); transform: translate(-1px, -1px); } 60% { clip-path: inset(25% 0 58% 0); transform: translate(2px, 1px); } 80% { clip-path: inset(54% 0 7% 0); transform: translate(-1px, 2px); } 100% { clip-path: inset(58% 0 43% 0); transform: translate(0); } }
+@keyframes floatParticle { from { transform: translateY(0) rotate(0deg); } to { transform: translateY(-100vh) rotate(360deg); } }
 
 /* PARTÍCULAS DE POLVO */
 .dust-container { position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 10; }
@@ -717,15 +603,16 @@ onMounted(() => gameStore.initializeGame());
   position: absolute; width: 2px; height: 2px; background: rgba(255,255,255,0.3); border-radius: 50%;
   animation: floatParticle 10s infinite linear;
 }
+
 @for $i from 1 through 20 {
   .dust-mote:nth-child(#{$i}) {
-    left: random(100) * 1%; top: random(100) * 1%;
-    animation-duration: (random(10) + 10) * 1s;
-    animation-delay: -#{random(10)}s;
-    opacity: random(5) * 0.1;
+    left: math.percentage(math.div(math.random(100), 100)); 
+    top: math.percentage(math.div(math.random(100), 100));
+    animation-duration: (math.random(10) + 10) * 1s;
+    animation-delay: -(math.random(10)) * 1s;
+    opacity: math.random(5) * 0.1;
   }
 }
-@keyframes floatParticle { from { transform: translateY(0) rotate(0deg); } to { transform: translateY(-100vh) rotate(360deg); } }
 
 /* LOADING */
 .loading-overlay { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: var(--c-gold); }
@@ -736,7 +623,7 @@ onMounted(() => gameStore.initializeGame());
 @media (max-width: 1024px) {
   .game-viewport { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
   .top-bar { padding: 0 20px; }
-  .roster-panel { display: none; /* Ocultar sidebar en móvil o hacerla drawer */ }
+  .roster-panel { display: none; }
   .narrative-grimoire { padding: 30px; border: none; background: rgba(0,0,0,0.6); }
   .scene-title { font-size: 2rem; }
   .story-text { font-size: 1.2rem; }

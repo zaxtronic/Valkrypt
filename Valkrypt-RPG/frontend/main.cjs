@@ -5,40 +5,33 @@ function createWindow() {
   const win = new BrowserWindow({
     width: 1200,
     height: 800,
+    autoHideMenuBar: true, // Oculta la barra de herramientas para que parezca un juego
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
-      // Esto permite que axios y otros servicios funcionen sin bloqueos de seguridad locales
       webSecurity: false 
     },
     backgroundColor: '#050505',
-    icon: path.join(__dirname, 'public/favicon.ico') // Opcional: si tienes icono
+    icon: path.join(__dirname, 'public/favicon.ico')
   });
 
-  // Determinamos la URL según el entorno
-  const isDev = process.env.NODE_ENV === 'development';
-  const startUrl = isDev 
-    ? 'http://localhost:5173' 
-    : `file://${path.join(__dirname, 'dist/index.html')}`;
-
-  win.loadURL(startUrl);
-
-  // GESTIÓN DE ERRORES EN DESARROLLO: 
-  // Si Vite aún no ha arrancado, reintenta cargar la URL cada 2 segundos
-  if (isDev) {
-    win.webContents.on('did-fail-load', () => {
-      console.log("Esperando a que Vite arranque...");
-      setTimeout(() => {
-        win.loadURL(startUrl);
-      }, 2000);
-    });
-    // Abre las herramientas de desarrollo automáticamente en modo dev
+  // USAR LAS VARIABLES DEL PLUGIN:
+  // VITE_DEV_SERVER_URL la crea el plugin automáticamente al hacer
+  if (process.env.VITE_DEV_SERVER_URL) {
+    win.loadURL(process.env.VITE_DEV_SERVER_URL);
+    // Abre la consola automáticamente solo en desarrollo
     win.webContents.openDevTools();
+  } else {
+    // Para el ejecutable final (npm run electron:build)
+    win.loadFile(path.join(__dirname, 'dist/index.html'));
   }
 }
 
 app.whenReady().then(createWindow);
 
+// Cerrar procesos zombis al cerrar la ventana
 app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') app.quit();
+  if (process.platform !== 'darwin') {
+    app.quit();
+  }
 });

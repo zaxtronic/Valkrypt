@@ -116,7 +116,6 @@ const classes = [
   { name: 'Clérigo', desc: 'Hereje para la iglesia, santo para los pobres.', icon: '🩸', img: 'https://images.unsplash.com/photo-1632211603522-0d1939102641?q=80&w=600&auto=format&fit=crop' },
 ];
 
-<<<<<<< HEAD
 // Lógica de Parallax del Mouse
 const mouseX = ref(0);
 const mouseY = ref(0);
@@ -148,15 +147,6 @@ onUnmounted(() => {
 const handleEnter = () => {
   if (isLoggedIn.value) router.push('/select');
   else router.push('/login');
-=======
-// Manejar clic en el botón principal
-const handleEnter = () => {
-  if (isLoggedIn.value) {
-    router.push('/select'); 
-  } else {
-    router.push('/login'); 
-  }
->>>>>>> 4a64156f464224e851556985ac770b42376f4415
 };
 
 const logout = () => {
@@ -168,7 +158,6 @@ const logout = () => {
 </script>
 
 <style scoped lang="scss">
-<<<<<<< HEAD
 @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Fauna+One&display=swap');
 
 /* Variables CSS */
@@ -193,8 +182,6 @@ const logout = () => {
 }
 
 /* Navbar */
-=======
->>>>>>> 4a64156f464224e851556985ac770b42376f4415
 .navbar {
   padding: 1.5rem 0;
   transition: all 0.4s ease;
@@ -251,7 +238,6 @@ const logout = () => {
 /* Hero Section */
 .hero-section {
   position: relative;
-<<<<<<< HEAD
   height: 100vh;
   display: flex;
   align-items: center;
@@ -277,17 +263,6 @@ const logout = () => {
     text-align: center;
     max-width: 900px;
     padding: 0 20px;
-=======
-  height: 85vh;
-  margin-top: 80px;
-  background: url('https://www.transparenttextures.com/patterns/dark-matter.png'), radial-gradient(circle, #222 0%, #000 100%);
-  border-bottom: 1px solid #333;
-  
-  .hero-overlay {
-    background: rgba(0,0,0,0.5);
-    height: 100%;
-    display: flex; align-items: center; justify-content: center;
->>>>>>> 4a64156f464224e851556985ac770b42376f4415
   }
 
   .main-title {
