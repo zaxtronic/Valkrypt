@@ -1,0 +1,41 @@
+# --- DEPENDENCIAS ---
+# Bloquea node_modules en la raíz y en cualquier subcarpeta (front y back)
+**/node_modules/
+/node_modules/
+.pnp
+.pnp.js
+
+# --- ENTORNOS Y SECRETOS ---
+# Muy importante para que no se filtren tus claves de DB en el backend
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# --- COMPILACIÓN Y SALIDA ---
+# Carpetas donde se guarda el proyecto listo para subir a hosting
+/dist/
+/build/
+/out/
+*.tsbuildinfo
+
+# --- LOGS Y ERRORES ---
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+logs/
+*.log
+
+# --- CONFIGURACIÓN DE IDE (VS Code / JetBrains) ---
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+
+# --- ARCHIVOS DE SISTEMA ---
+.DS_Store
+Thumbs.db
