@@ -1,11 +1,11 @@
 {
   "name": "valkrypt-frontend",
   "private": true,
-  "version": "1.0.0",
+  "version": "2.0.0",
   "type": "module",
   "main": "main.cjs",
   "scripts": {
-    "dev": "vite",
+    "dev": "fuser -k 5174/tcp || true && vite",
     "build": "vite build",
     "preview": "vite preview",
     "electron": "fuser -k 5173/tcp || true && cross-env ELECTRON=true vite",
