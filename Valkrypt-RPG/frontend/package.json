@@ -1,22 +1,46 @@
 {
   "name": "valkrypt-frontend",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
+  "main": "main.cjs",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "electron": "cross-env ELECTRON=true vite",
+    "electron:build": "vite build && electron-builder"
   },
   "dependencies": {
     "axios": "^1.6.7",
     "pinia": "^2.1.7",
+    "vite-plugin-electron": "^0.29.0",
     "vue": "^3.4.19",
     "vue-router": "^4.3.0"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.0.4",
+    "concurrently": "^8.2.2",
+    "cross-env": "^7.0.3",
+    "electron": "^29.0.0",
+    "electron-builder": "^24.13.3",
     "sass": "^1.71.1",
-    "vite": "^5.1.4"
+    "vite": "^5.1.4",
+    "wait-on": "^7.2.0"
+  },
+  "build": {
+    "appId": "com.valkrypt.game",
+    "productName": "Valkrypt",
+    "directories": {
+      "output": "dist_electron"
+    },
+    "files": [
+      "dist/**/*",
+      "main.cjs"
+    ],
+    "win": {
+      "target": "portable",
+      "icon": "public/favicon.ico"
+    }
   }
 }

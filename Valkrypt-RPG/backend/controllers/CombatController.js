@@ -1,8 +1,7 @@
 const CombatSystem = require('../services/CombatSystem');
-const GameState = require('../models/GameState'); // (Simulado, en futuro vendrá de DB)
+const GameState = require('../models/GameState');
 
 // Variable temporal en memoria para guardar el estado del combate activo
-// (En producción, esto iría a Redis o Base de Datos)
 let activeCombatSession = null;
 
 class CombatController {

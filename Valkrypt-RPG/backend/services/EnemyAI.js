@@ -25,7 +25,6 @@ class EnemyAI {
         }
 
         // GUARDIA / BESTIA: Ataca al azar o al tanque (Kaelen)
-        // Simulamos "Aggro" simple: 50% al azar, 50% al Tanque
         const roll = DiceService.rollD100();
         let target = validTargets[Math.floor(Math.random() * validTargets.length)];
         

@@ -2,7 +2,6 @@ class NarrativeEngine {
     
     /**
      * Verifica si una opción está disponible para el jugador
-     * Ej: "Robar llave" solo si tienes a Vax o Destreza > 15
      */
     static checkRequirements(option, party) {
         if (!option.requirements) return true;
@@ -19,7 +18,6 @@ class NarrativeEngine {
 
     /**
      * Procesa las consecuencias inmediatas de una decisión
-     * Ej: Ganar oro, Perder HP al caer en trampa
      */
     static applyConsequences(option, gameState) {
         if (!option.effect) return gameState;
@@ -28,7 +26,6 @@ class NarrativeEngine {
             gameState.inventory.gold = (gameState.inventory.gold || 0) + option.effect.gold;
         }
         
-        // Aquí añadiríamos lógica para daño por trampas fuera de combate
         
         return gameState;
     }

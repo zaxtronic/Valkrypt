@@ -4,7 +4,7 @@ const cors = require('cors');
 const morgan = require('morgan');
 
 // Importar rutas
-const routes = require('./routes'); // Busca automáticamente index.js
+const routes = require('./routes');
 
 const app = express();
 

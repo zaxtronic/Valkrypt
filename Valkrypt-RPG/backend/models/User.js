@@ -11,7 +11,7 @@ class User {
         const result = await this.collection().insertOne({
             username: userData.username,
             email: userData.email,
-            password: userData.password, // Ya debe venir hasheada
+            password: userData.password, // Ya deberia de venir hasheada
             createdAt: new Date(),
             saveData: {} // Espacio para guardar el JSON del juego luego
         });
