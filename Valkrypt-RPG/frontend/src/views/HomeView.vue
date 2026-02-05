@@ -12,6 +12,11 @@
         </span>
         <div class="collapse navbar-collapse justify-content-end">
           <ul class="navbar-nav">
+            <li v-if="isLoggedIn" class="nav-item d-flex align-items-center">
+              <span class="connection-badge" :class="isOfflineMode ? 'badge-local' : 'badge-online'">
+                {{ isOfflineMode ? '🛡️ LOCAL' : '🌐 NUBE' }}
+              </span>
+            </li>
             <li class="nav-item"><a href="#" class="nav-link">EL REINO</a></li>
             <li class="nav-item"><a href="#" class="nav-link">DISFORMIDAD</a></li>
             <li class="nav-item"><a href="#" class="nav-link">CÓDICE</a></li>
@@ -106,9 +111,9 @@ import { useRouter } from 'vue-router';
 
 const router = useRouter();
 const isLoggedIn = ref(false);
+const isOfflineMode = ref(false);
 const isScrolled = ref(false);
 
-// Datos simulados para las clases
 const classes = [
   { name: 'Guerrero', desc: 'Acero mellado y honor olvidado.', icon: '⚔️', img: 'https://images.unsplash.com/photo-1598556834920-56e6d787033e?q=80&w=600&auto=format&fit=crop' },
   { name: 'Pícaro', desc: 'Una daga en la oscuridad vale más que mil palabras.', icon: '🗝️', img: 'https://images.unsplash.com/photo-1626245136979-d59b022b3f17?q=80&w=600&auto=format&fit=crop' },
@@ -116,7 +121,6 @@ const classes = [
   { name: 'Clérigo', desc: 'Hereje para la iglesia, santo para los pobres.', icon: '🩸', img: 'https://images.unsplash.com/photo-1632211603522-0d1939102641?q=80&w=600&auto=format&fit=crop' },
 ];
 
-// Lógica de Parallax del Mouse
 const mouseX = ref(0);
 const mouseY = ref(0);
 
@@ -136,7 +140,13 @@ const handleScroll = () => {
 };
 
 onMounted(() => {
-  isLoggedIn.value = !!localStorage.getItem('token');
+  const token = localStorage.getItem('token');
+  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  
+  // Estamos logueados si hay token O si es un usuario marcado como offline
+  isLoggedIn.value = !!token || user.isOffline === true;
+  isOfflineMode.value = user.isOffline === true;
+  
   window.addEventListener('scroll', handleScroll);
 });
 
@@ -153,14 +163,14 @@ const logout = () => {
   localStorage.removeItem('token');
   localStorage.removeItem('user');
   isLoggedIn.value = false;
-  window.location.reload();
+  isOfflineMode.value = false;
+  router.push('/login');
 };
 </script>
 
 <style scoped lang="scss">
 @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Fauna+One&display=swap');
 
-/* Variables CSS */
 :root {
   --color-bg: #050505;
   --color-gold: #c5a059;
@@ -172,16 +182,36 @@ const logout = () => {
   --font-body: 'Fauna One', serif;
 }
 
-/* Base */
 .valkrypt-home {
-  background-color: var(--color-bg);
-  color: var(--color-text);
-  font-family: var(--font-body);
+  background-color: #050505;
+  color: #dcdcdc;
+  font-family: 'Fauna One', serif;
   overflow-x: hidden;
   min-height: 100vh;
 }
 
-/* Navbar */
+/* Badge de estado */
+.connection-badge {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 0.7rem;
+  padding: 4px 10px;
+  border-radius: 2px;
+  margin-right: 15px;
+  letter-spacing: 1px;
+  
+  &.badge-online {
+    background: rgba(76, 209, 55, 0.1);
+    border: 1px solid #4cd137;
+    color: #4cd137;
+  }
+  
+  &.badge-local {
+    background: rgba(197, 160, 89, 0.1);
+    border: 1px solid #c5a059;
+    color: #c5a059;
+  }
+}
+
 .navbar {
   padding: 1.5rem 0;
   transition: all 0.4s ease;
@@ -190,19 +220,19 @@ const logout = () => {
   &.scrolled {
     background: rgba(5, 5, 5, 0.95);
     padding: 0.8rem 0;
-    border-bottom: 1px solid var(--color-gold-dim);
+    border-bottom: 1px solid #7a6335;
     box-shadow: 0 5px 20px rgba(0,0,0,0.8);
   }
 
   .navbar-brand {
-    font-family: var(--font-title);
-    color: var(--color-gold);
+    font-family: 'Cinzel Decorative', serif;
+    color: #c5a059;
     font-size: 1.8rem;
     text-shadow: 0 0 10px rgba(197, 160, 89, 0.3);
   }
 
   .nav-link {
-    font-family: var(--font-title);
+    font-family: 'Cinzel Decorative', serif;
     color: #888;
     margin-left: 2rem;
     position: relative;
@@ -211,9 +241,8 @@ const logout = () => {
     letter-spacing: 1px;
 
     &:hover {
-      color: var(--color-text);
+      color: #fff;
       text-shadow: 0 0 8px rgba(255,255,255,0.5);
-      
       &::after { width: 100%; }
     }
 
@@ -224,18 +253,17 @@ const logout = () => {
       left: 0;
       width: 0;
       height: 1px;
-      background: var(--color-blood);
+      background: #8a0b0b;
       transition: width 0.3s;
     }
 
     &.logout-link {
-      color: var(--color-blood);
-      &:hover { color: var(--color-blood-bright); }
+      color: #8a0b0b;
+      &:hover { color: #ff1a1a; }
     }
   }
 }
 
-/* Hero Section */
 .hero-section {
   position: relative;
   height: 100vh;
@@ -248,12 +276,10 @@ const logout = () => {
   .parallax-bg {
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%;
-    /* Imagen de fondo oscura de fantasía */
     background: linear-gradient(to bottom, rgba(0,0,0,0.3), #050505),
                 url('https://images.unsplash.com/photo-1519074069444-1ba4fff66d16?q=80&w=1920&auto=format&fit=crop');
     background-size: cover;
     background-position: center;
-    transition: transform 0.1s linear;
     z-index: 0;
   }
 
@@ -266,21 +292,17 @@ const logout = () => {
   }
 
   .main-title {
-    font-family: var(--font-title);
+    font-family: 'Cinzel Decorative', serif;
     font-size: 5rem;
     color: #e0e0e0;
     text-shadow: 0 5px 15px rgba(0,0,0,1);
     margin: 0;
     letter-spacing: 5px;
-    position: relative;
-    
-    /* Efecto Glitch sutil */
-    animation: glitch 5s infinite alternate;
   }
 
   .divider-rune {
     font-size: 2rem;
-    color: var(--color-gold);
+    color: #c5a059;
     margin: 1rem 0;
     opacity: 0.8;
   }
@@ -290,11 +312,9 @@ const logout = () => {
     color: #aaa;
     margin-bottom: 3rem;
     font-style: italic;
-    text-shadow: 0 2px 5px rgba(0,0,0,0.8);
   }
 }
 
-/* Botón RPG Avanzado */
 .btn-rpg {
   background: transparent;
   border: none;
@@ -306,9 +326,9 @@ const logout = () => {
     display: block;
     padding: 18px 60px;
     background: linear-gradient(180deg, #2b0a0a, #1a0000);
-    border: 1px solid var(--color-gold-dim);
-    color: var(--color-gold);
-    font-family: var(--font-title);
+    border: 1px solid #7a6335;
+    color: #c5a059;
+    font-family: 'Cinzel Decorative', serif;
     font-size: 1.5rem;
     letter-spacing: 2px;
     clip-path: polygon(10% 0, 100% 0, 100% 80%, 90% 100%, 0 100%, 0 20%);
@@ -320,7 +340,7 @@ const logout = () => {
   .btn-glow {
     position: absolute;
     top: -5px; left: -5px; right: -5px; bottom: -5px;
-    background: var(--color-blood);
+    background: #8a0b0b;
     z-index: 1;
     filter: blur(15px);
     opacity: 0;
@@ -331,15 +351,13 @@ const logout = () => {
     .btn-inner {
       background: linear-gradient(180deg, #420f0f, #2b0a0a);
       color: #fff;
-      text-shadow: 0 0 10px var(--color-blood-bright);
       transform: scale(1.05);
-      border-color: var(--color-blood-bright);
+      border-color: #ff1a1a;
     }
     .btn-glow { opacity: 0.6; }
   }
 }
 
-/* Stats en Hero */
 .hero-stats {
   display: flex;
   justify-content: center;
@@ -350,12 +368,11 @@ const logout = () => {
   .stat-item {
     display: flex;
     flex-direction: column;
-    
     .count {
-      font-family: var(--font-title);
+      font-family: 'Cinzel Decorative', serif;
       font-size: 2rem;
       color: #fff;
-      &.text-red { color: var(--color-blood-bright); }
+      &.text-red { color: #ff1a1a; }
     }
     .label {
       font-size: 0.8rem;
@@ -365,15 +382,14 @@ const logout = () => {
   }
 }
 
-/* Sección Clases */
 .classes-section {
   padding: 6rem 0;
   background: #080808;
   
   .section-title {
     text-align: center;
-    font-family: var(--font-title);
-    color: var(--color-gold);
+    font-family: 'Cinzel Decorative', serif;
+    color: #c5a059;
     font-size: 3rem;
     margin-bottom: 3rem;
     position: relative;
@@ -386,7 +402,7 @@ const logout = () => {
       display: block;
       width: 60%;
       height: 2px;
-      background: var(--color-blood);
+      background: #8a0b0b;
       margin: 10px auto 0;
     }
   }
@@ -398,7 +414,7 @@ const logout = () => {
   overflow: hidden;
   border: 1px solid #222;
   cursor: pointer;
-  transition: all 0.4s ease;
+  margin-bottom: 20px;
 
   .card-bg {
     width: 100%; height: 100%;
@@ -410,57 +426,24 @@ const logout = () => {
 
   .card-overlay {
     position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
+    bottom: 0; left: 0; width: 100%;
     padding: 20px;
     background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
     transform: translateY(60px);
     transition: transform 0.4s;
   }
 
-  h3 {
-    font-family: var(--font-title);
-    color: #fff;
-    margin: 0;
-    font-size: 1.8rem;
-  }
-
-  p {
-    font-size: 0.9rem;
-    color: #ccc;
-    margin-top: 10px;
-    opacity: 0;
-    transition: opacity 0.4s;
-  }
-
-  .role-icon {
-    font-size: 2rem;
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    opacity: 0;
-    transition: all 0.4s;
-  }
+  h3 { font-family: 'Cinzel Decorative', serif; color: #fff; font-size: 1.8rem; }
+  p { font-size: 0.9rem; color: #ccc; opacity: 0; transition: opacity 0.4s; }
+  .role-icon { font-size: 2rem; position: absolute; top: 10px; right: 10px; opacity: 0; }
 
   &:hover {
-    border-color: var(--color-gold);
-    box-shadow: 0 0 20px rgba(197, 160, 89, 0.1);
-
-    .card-bg {
-      transform: scale(1.1);
-      filter: grayscale(0%) brightness(0.8);
-    }
+    border-color: #c5a059;
+    .card-bg { transform: scale(1.1); filter: grayscale(0%) brightness(0.8); }
     .card-overlay { transform: translateY(0); }
     p { opacity: 1; }
-    .role-icon { opacity: 1; top: -40px; } /* Mueve el icono fuera o anímalo */
+    .role-icon { opacity: 1; }
   }
-}
-
-/* Sección Lore (Parchment/Tablet) */
-.lore-section {
-  padding: 5rem 0;
-  background: url('https://www.transparenttextures.com/patterns/black-scales.png');
 }
 
 .parchment-box {
@@ -469,7 +452,6 @@ const logout = () => {
   padding: 3rem 4rem;
   position: relative;
   box-shadow: 0 0 50px rgba(0,0,0,0.9);
-  /* Borde doble estilo RPG */
   outline: 4px solid #1a1a1a;
   outline-offset: -10px;
 
@@ -477,76 +459,48 @@ const logout = () => {
     content: '';
     position: absolute;
     top: -2px; left: -2px; right: -2px; bottom: -2px;
-    border: 1px solid var(--color-gold-dim);
-    z-index: 1;
+    border: 1px solid #7a6335;
     pointer-events: none;
   }
 
   .wax-seal {
     position: absolute;
-    top: -25px;
-    right: 30px;
-    width: 60px;
-    height: 60px;
+    top: -25px; right: 30px;
+    width: 60px; height: 60px;
     background: radial-gradient(circle at 30% 30%, #ff4d4d, #8a0b0b);
     border-radius: 50%;
-    box-shadow: 2px 2px 5px rgba(0,0,0,0.5);
     border: 4px solid #5a0000;
   }
 
   .lore-header {
-    font-family: var(--font-title);
-    color: var(--color-gold);
+    font-family: 'Cinzel Decorative', serif;
+    color: #c5a059;
     text-align: center;
-    border-bottom: 1px solid #333;
-    padding-bottom: 1rem;
     margin-bottom: 2rem;
   }
 
-  p {
-    font-size: 1.1rem;
-    line-height: 1.8;
-    color: #bbb;
-  }
+  p { font-size: 1.1rem; line-height: 1.8; color: #bbb; }
 
   .drop-cap:first-letter {
-    font-family: var(--font-title);
+    font-family: 'Cinzel Decorative', serif;
     font-size: 3.5rem;
     float: left;
     margin-right: 10px;
-    margin-top: -10px;
-    color: var(--color-blood-bright);
-    text-shadow: 0 0 10px rgba(138, 11, 11, 0.5);
+    color: #ff1a1a;
   }
 
-  .signature {
-    text-align: right;
-    font-family: 'Dancing Script', cursive; /* Asegúrate de cargar esta si la quieres */
-    font-size: 1.5rem;
-    color: #666;
-    margin-top: 2rem;
-  }
+  .signature { text-align: right; font-size: 1.5rem; color: #666; margin-top: 2rem; }
 }
 
-/* Footer */
 .rpg-footer {
   background: #000;
   padding: 3rem 0;
   text-align: center;
   border-top: 1px solid #222;
-  
-  .runes-border {
-    font-family: 'Noto Sans Runic', sans-serif; /* Fallback de runas */
-    color: #333;
-    letter-spacing: 5px;
-    margin-bottom: 1rem;
-    font-size: 0.8rem;
-  }
-  
+  .runes-border { color: #333; letter-spacing: 5px; margin-bottom: 1rem; }
   p { font-size: 0.8rem; color: #555; }
 }
 
-/* Efectos Ambientales CSS */
 .ambient-overlay {
   position: fixed;
   top: 0; left: 0; width: 100%; height: 100%;
@@ -558,7 +512,6 @@ const logout = () => {
   position: absolute;
   width: 200%; height: 100%;
   background: url('https://raw.githubusercontent.com/danielstuart14/CSS_FOG_ANIMATION/master/img/fog1.png') repeat-x;
-  background-size: contain;
   animation: fogMove 60s linear infinite;
   opacity: 0.3;
 }
@@ -568,10 +521,8 @@ const logout = () => {
   100% { transform: translate3d(-50%, 0, 0); }
 }
 
-/* Media Queries */
 @media (max-width: 768px) {
   .main-title { font-size: 3rem; }
-  .btn-rpg .btn-inner { padding: 15px 30px; }
   .parchment-box { padding: 2rem 1.5rem; }
 }
 </style>

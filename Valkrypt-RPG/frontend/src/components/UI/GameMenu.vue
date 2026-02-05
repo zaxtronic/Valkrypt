@@ -1,267 +1,282 @@
 <template>
-  <header class="game-hud">
+  <header class="game-hud" :class="{ 'in-combat': gameStore.isCombatMode }">
     <div class="hud-background"></div>
+    <div class="scanline-effect"></div>
 
-    <div class="brand-section">
-      <div class="logo-icon">❖</div>
-      <h1 class="brand-text">VALKRYPT</h1>
+    <div class="brand-section" @mouseenter="showHint = true" @mouseleave="showHint = false">
+      <div class="logo-container">
+        <div class="logo-icon">❖</div>
+        <div class="logo-ring"></div>
+      </div>
+      <div class="text-group">
+        <h1 class="brand-text">VALKRYPT</h1>
+        <span class="version-tag">ALPHA v0.8.2</span>
+      </div>
+      
+      <transition name="fade-slide">
+        <div v-if="showHint" class="brand-tooltip">
+          <p>Reino de Aethelgard: Sesión Activa</p>
+          <small>ID: {{ gameStore.gameId }}</small>
+        </div>
+      </transition>
     </div>
 
     <div class="game-info">
-      <div class="info-location">
-        <span class="label">UBICACIÓN</span>
-        <span class="value">Las Minas Corruptas</span>
+      <div class="info-block location">
+        <span class="label">REGION ACTUAL</span>
+        <div class="value-row">
+          <span class="status-dot"></span>
+          <span class="value">{{ currentLocation }}</span>
+        </div>
       </div>
-      <div class="separator"></div>
-      <div class="info-turn">
-        <span class="label">TURNO</span>
-        <span class="value">05</span>
+      
+      <div class="v-separator"></div>
+      
+      <div class="info-block turn">
+        <span class="label">CRONOLOGÍA</span>
+        <div class="value-row">
+          <span class="value">Turno {{ currentTurn }}</span>
+        </div>
+      </div>
+
+      <div class="v-separator"></div>
+
+      <div class="info-block state">
+        <span class="label">ESTADO</span>
+        <span class="value state-text" :class="gameStore.isCombatMode ? 'danger' : 'safe'">
+          {{ gameStore.isCombatMode ? 'EN COMBATE' : 'EXPLORANDO' }}
+        </span>
       </div>
     </div>
 
     <nav class="system-controls">
       
-      <button class="icon-btn" @click="toggleFullscreen" title="Pantalla Completa">
-        <span v-if="isFullscreen">⤡</span>
-        <span v-else>⤢</span>
-      </button>
+      <div class="utility-group">
+        <button class="icon-btn" @click="toggleFullscreen" :title="isFullscreen ? 'Ventana' : 'Pantalla Completa'">
+          <span class="icon">{{ isFullscreen ? '⤡' : '⤢' }}</span>
+        </button>
+      </div>
 
-      <button 
-        class="sys-btn save" 
-        :class="{ 'saving': isSaving, 'saved': saveSuccess }" 
-        @click="handleSave"
-        :disabled="isSaving"
-      >
-        <span class="btn-icon" v-if="!isSaving && !saveSuccess">💾</span>
-        <span class="btn-icon spin" v-if="isSaving">↻</span>
-        <span class="btn-icon" v-if="saveSuccess">✔</span>
-        <span class="btn-text">
-          {{ saveText }}
-        </span>
-      </button>
+      <div class="v-divider"></div>
 
-      <button class="sys-btn" @click="loadGame">
-        <span class="btn-icon">📂</span>
-        <span class="btn-text">CARGAR</span>
-      </button>
-      
+      <div class="action-group">
+        <button 
+          class="sys-btn save" 
+          :class="{ 'saving': isSaving, 'saved': saveSuccess }" 
+          @click="handleSave"
+          :disabled="isSaving"
+        >
+          <div class="btn-bg"></div>
+          <span class="btn-icon" v-if="!isSaving && !saveSuccess">💾</span>
+          <span class="btn-icon spin" v-if="isSaving">↻</span>
+          <span class="btn-icon pulse" v-if="saveSuccess">✔</span>
+          <span class="btn-text">{{ saveText }}</span>
+        </button>
+
+        <button class="sys-btn load" @click="loadGame">
+          <span class="btn-icon">📂</span>
+          <span class="btn-text">CARGAR</span>
+        </button>
+      </div>
+
       <div class="v-divider"></div>
 
       <button class="sys-btn exit" @click="exitGame">
         <span class="btn-icon">✖</span>
-        <span class="btn-text">ABANDONAR</span>
+        <span class="btn-text">SALIR</span>
       </button>
     </nav>
   </header>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-// import { useGameStore } from '../stores/gameStore'; // Descomentar cuando tengas el store
+import { useGameStore } from '../stores/gameStore';
 
 const router = useRouter();
-const emit = defineEmits(['resume']);
+const gameStore = useGameStore();
 
-// Estado local para UI
+// --- ESTADO LOCAL ---
 const isFullscreen = ref(false);
 const isSaving = ref(false);
 const saveSuccess = ref(false);
+const showHint = ref(false);
 
-// Texto dinámico del botón Guardar
+// --- PROPIEDADES COMPUTADAS ---
+const currentLocation = computed(() => gameStore.currentScene?.location || "Las Minas Corruptas");
+const currentTurn = computed(() => (gameStore.history?.length || 0) + 1);
+
 const saveText = computed(() => {
-  if (saveSuccess.value) return "GUARDADO";
-  if (isSaving.value) return "ESCRIBIENDO...";
+  if (saveSuccess.value) return "CRÓNICA ESCRITA";
+  if (isSaving.value) return "SELLANDO...";
   return "GUARDAR";
 });
 
-// --- FUNCIONES ---
-
+// --- MÉTODOS DE SISTEMA ---
 const toggleFullscreen = () => {
   if (!document.fullscreenElement) {
     document.documentElement.requestFullscreen();
     isFullscreen.value = true;
   } else {
-    if (document.exitFullscreen) {
-      document.exitFullscreen();
-      isFullscreen.value = false;
-    }
+    document.exitFullscreen();
+    isFullscreen.value = false;
   }
 };
 
 const handleSave = async () => {
   if (isSaving.value) return;
-  
-  // Simulación de guardado asíncrono (API call)
   isSaving.value = true;
-  saveSuccess.value = false;
-
-  // Simulamos 1.5 segundos de "lag" de red/disco
-  setTimeout(() => {
-    isSaving.value = false;
-    saveSuccess.value = true;
+  
+  try {
+    // Simulamos latencia de escritura en disco/DB
+    await new Promise(r => setTimeout(r, 1200));
     
-    // Resetear el estado de "Guardado" después de 2 segundos
-    setTimeout(() => {
-      saveSuccess.value = false;
-    }, 2000);
-  }, 1500);
+    localStorage.setItem('valkrypt_party_backup', JSON.stringify(gameStore.party));
+    localStorage.setItem('valkrypt_scene_backup', JSON.stringify(gameStore.currentScene));
+    
+    saveSuccess.value = true;
+    setTimeout(() => saveSuccess.value = false, 3000);
+  } catch (e) {
+    console.error("Error al salvar partida:", e);
+  } finally {
+    isSaving.value = false;
+  }
 };
 
 const loadGame = () => {
-  // Aquí podrías abrir un Modal en lugar de un alert
-  console.log("Abriendo menú de carga...");
+  const data = localStorage.getItem('valkrypt_scene_backup');
+  if (data) {
+    gameStore.currentScene = JSON.parse(data);
+    alert("Memoria restaurada con éxito.");
+  }
 };
 
 const exitGame = () => {
-  if(confirm("⚠ ADVERTENCIA ⚠\n\nEstás a punto de abandonar la sesión.\nTodo progreso no guardado se perderá en el vacío.\n\n¿Confirmar salida?")) {
-    router.push('/');
+  if (confirm("¿Abandonar Aethelgard? El progreso no guardado se desvanecerá.")) {
+    gameStore.resetGame();
   }
 };
 </script>
 
 <style scoped lang="scss">
-/* --- VARIABLES (Coherencia con el resto del diseño) --- */
-:root {
-  --h-height: 70px;
-  --c-bg-glass: rgba(10, 10, 12, 0.85);
-  --c-gold: #c5a059;
-  --c-gold-glow: rgba(197, 160, 89, 0.4);
-  --c-blood: #8a1c1c;
-  --c-text: #ccc;
-  --font-rune: 'Cinzel Decorative', serif;
-  --font-ui: 'Cinzel', serif;
-}
+$gold: #c5a059;
+$blood: #8a1c1c;
+$bg-glass: rgba(10, 10, 12, 0.92);
 
-/* --- ESTRUCTURA PRINCIPAL --- */
 .game-hud {
-  position: fixed; top: 0; left: 0; width: 100%; height: var(--h-height);
-  z-index: 1000;
+  position: fixed; top: 0; left: 0; width: 100%; height: 80px;
   display: flex; align-items: center; justify-content: space-between;
-  padding: 0 2rem;
-  border-bottom: 1px solid rgba(197, 160, 89, 0.3);
-  box-shadow: 0 5px 20px rgba(0,0,0,0.8);
-  color: var(--c-text);
-  font-family: var(--font-ui);
+  padding: 0 40px; z-index: 2000;
+  border-bottom: 2px solid rgba($gold, 0.2);
+  transition: all 0.5s ease;
+
+  &.in-combat {
+    border-bottom-color: rgba($blood, 0.5);
+    box-shadow: 0 0 30px rgba($blood, 0.2);
+    .status-dot { background: $blood; box-shadow: 0 0 10px $blood; }
+  }
 }
 
-/* Fondo Glassmorphism */
 .hud-background {
-  position: absolute; inset: 0; z-index: -1;
-  background: var(--c-bg-glass);
-  backdrop-filter: blur(10px);
-  /* Textura sutil de ruido */
+  position: absolute; inset: 0; z-index: -2;
+  background: $bg-glass;
+  backdrop-filter: blur(15px);
   background-image: url("https://www.transparenttextures.com/patterns/stardust.png");
-  opacity: 0.5;
 }
 
-/* --- MARCA (IZQUIERDA) --- */
+.scanline-effect {
+  position: absolute; inset: 0; z-index: -1;
+  background: linear-gradient(to bottom, transparent 50%, rgba(0,0,0,0.1) 51%);
+  background-size: 100% 4px; pointer-events: none; opacity: 0.3;
+}
+
+/* MARCA */
 .brand-section {
-  display: flex; align-items: center; gap: 10px;
-  color: var(--c-gold);
-  text-shadow: 0 0 10px var(--c-gold-glow);
-  cursor: default;
+  display: flex; align-items: center; gap: 15px; position: relative;
+  
+  .logo-container {
+    position: relative; width: 45px; height: 45px;
+    display: flex; align-items: center; justify-content: center;
+    
+    .logo-icon { font-size: 1.8rem; color: $gold; z-index: 2; animation: float 3s infinite ease-in-out; }
+    .logo-ring {
+      position: absolute; inset: 0; border: 1px solid rgba($gold, 0.3);
+      border-radius: 50%; animation: spin 10s linear infinite;
+    }
+  }
+
+  .text-group {
+    display: flex; flex-direction: column;
+    .brand-text {
+      font-family: 'Cinzel Decorative', cursive; font-size: 1.8rem; margin: 0;
+      background: linear-gradient(180deg, #fff 0%, $gold 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 0 10px rgba($gold, 0.3));
+    }
+    .version-tag { font-size: 0.6rem; color: #555; letter-spacing: 2px; }
+  }
 }
 
-.logo-icon {
-  font-size: 1.5rem;
-  animation: pulse 4s infinite;
+.brand-tooltip {
+  position: absolute; top: 60px; left: 0; background: #1a1a1a;
+  border: 1px solid $gold; padding: 10px; min-width: 200px;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.5); z-index: 10;
+  p { margin: 0; font-size: 0.8rem; color: $gold; }
+  small { color: #666; }
 }
 
-.brand-text {
-  font-family: var(--font-rune);
-  font-size: 1.6rem; margin: 0; letter-spacing: 3px; font-weight: 700;
-  background: linear-gradient(to bottom, #ebd5a0, #c5a059);
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-}
-
-/* --- INFO JUEGO (CENTRO) --- */
+/* INFO JUEGO */
 .game-info {
-  display: flex; align-items: center; gap: 20px;
-  background: rgba(0,0,0,0.3);
-  padding: 5px 20px;
-  border: 1px solid rgba(255,255,255,0.05);
-  border-radius: 4px;
-  
-  /* Esquinas cortadas (estilo sci-fi/fantasy) */
-  clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+  display: flex; gap: 30px; align-items: center;
+  background: rgba(0,0,0,0.5); padding: 10px 30px;
+  border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);
+  clip-path: polygon(15px 0%, 100% 0%, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0% 100%, 0% 15px);
+
+  .info-block {
+    display: flex; flex-direction: column;
+    .label { font-size: 0.65rem; color: #555; font-weight: bold; margin-bottom: 4px; }
+    .value-row { display: flex; align-items: center; gap: 8px; }
+    .value { font-size: 1rem; color: #fff; font-family: 'Cinzel', serif; }
+    .status-dot { width: 6px; height: 6px; background: #4caf50; border-radius: 50%; }
+    .state-text.danger { color: #ff4444; text-shadow: 0 0 10px rgba(255,0,0,0.3); }
+  }
 }
 
-.info-location, .info-turn {
-  display: flex; flex-direction: column; align-items: center;
-  line-height: 1.1;
-}
+.v-separator { width: 1px; height: 30px; background: rgba(255,255,255,0.1); }
 
-.label { font-size: 0.6rem; color: #666; letter-spacing: 1px; }
-.value { font-size: 0.9rem; color: #eee; font-weight: bold; letter-spacing: 1px; }
-
-.separator { width: 1px; height: 25px; background: #444; }
-
-/* --- CONTROLES (DERECHA) --- */
+/* CONTROLES */
 .system-controls {
-  display: flex; align-items: center; gap: 12px;
-}
-
-/* Botones Base */
-.sys-btn, .icon-btn {
-  background: transparent;
-  border: 1px solid #333;
-  color: #999;
-  font-family: var(--font-ui);
-  font-size: 0.75rem;
-  padding: 8px 16px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex; align-items: center; gap: 8px;
-  position: relative; overflow: hidden;
-
-  &:hover:not(:disabled) {
-    border-color: var(--c-gold);
-    color: var(--c-gold);
-    background: rgba(197, 160, 89, 0.05);
-    box-shadow: 0 0 15px rgba(197, 160, 89, 0.1);
-  }
-
-  &:active { transform: translateY(1px); }
+  display: flex; align-items: center; gap: 15px;
   
-  &:disabled { opacity: 0.7; cursor: wait; }
-}
+  .sys-btn {
+    position: relative; background: rgba(255,255,255,0.02);
+    border: 1px solid #333; color: #aaa; padding: 10px 20px;
+    font-family: 'Cinzel', serif; font-size: 0.75rem; cursor: pointer;
+    overflow: hidden; transition: 0.3s;
+    display: flex; align-items: center; gap: 10px;
 
-.icon-btn { padding: 8px 10px; font-size: 1.2rem; }
-
-/* Botón Guardar (Estados Especiales) */
-.sys-btn.save {
-  min-width: 130px; justify-content: center;
-  
-  &.saving { border-color: #aaa; color: #fff; background: rgba(255,255,255,0.1); }
-  &.saved { border-color: #4caf50; color: #4caf50; background: rgba(76, 175, 80, 0.1); }
-}
-
-/* Animación Spin para guardar */
-.spin { display: inline-block; animation: spin 1s linear infinite; }
-
-/* Botón Salir */
-.sys-btn.exit {
-  border-color: #3a1111; color: #a54a4a;
-  &:hover {
-    background: rgba(138, 28, 28, 0.2);
-    border-color: #ff4444; color: #ffaaaa;
-    box-shadow: 0 0 15px rgba(255, 68, 68, 0.2);
+    &:hover { border-color: $gold; color: #fff; background: rgba($gold, 0.05); }
+    
+    &.save.saved { border-color: #4caf50; color: #4caf50; }
+    &.exit { border-color: #400; color: #a44; &:hover { background: rgba($blood, 0.1); border-color: #f44; } }
   }
 }
 
-.v-divider { width: 1px; height: 20px; background: #333; margin: 0 5px; }
+.v-divider { width: 2px; height: 20px; background: #222; }
 
-/* --- RESPONSIVE --- */
-@media (max-width: 768px) {
-  .game-hud { padding: 0 10px; justify-content: space-between; }
-  .brand-text { display: none; } /* Ocultar texto marca en móvil */
-  .game-info { display: none; } /* Ocultar info en móvil si no cabe */
-  .btn-text { display: none; } /* Solo iconos en móvil */
-  .sys-btn.save { min-width: auto; }
+/* ANIMACIONES */
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+.spin { animation: spin 1s linear infinite; }
+.pulse { animation: pulse 1s infinite; }
+@keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
+
+/* TRANSICIONES VUE */
+.fade-slide-enter-active, .fade-slide-leave-active { transition: 0.3s ease; }
+.fade-slide-enter-from, .fade-slide-leave-to { opacity: 0; transform: translateY(-10px); }
+
+@media (max-width: 1200px) {
+  .game-info, .version-tag, .btn-text { display: none; }
 }
-
-/* --- ANIMACIONES --- */
-@keyframes pulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; text-shadow: 0 0 15px var(--c-gold); } }
-@keyframes spin { 100% { transform: rotate(360deg); } }
 </style>

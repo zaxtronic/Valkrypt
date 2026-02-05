@@ -1,192 +1,154 @@
-// src/stores/gameStore.js
 import { defineStore } from 'pinia';
 import api from '../services/api';
-// Importamos useCombatStore dentro de las acciones para evitar dependencias circulares si las hubiera
 import { useCombatStore } from './combatStore'; 
 
 export const useGameStore = defineStore('game', {
     state: () => ({
-        currentScene: null,     // Datos de la escena actual (texto, opciones)
-        party: [],              // Array de objetos de personajes
-        isCombatMode: false,    // Flag para cambiar la UI
-        isLoading: false,       // Spinner global
-        error: null,            // Mensajes de error para Toasts
-        gameId: null,           // ID de sesión del backend (si aplica)
-        history: []             // (Opcional) Log de decisiones tomadas
+        currentScene: null,
+        party: [],
+        isCombatMode: false,
+        isLoading: false,
+        error: null,
+        gameId: null,
+        history: [],
+        isSynced: true // Nuevo: para saber si el "sello" está al día
     }),
 
-    getters: {
-        // Devuelve solo personajes vivos
-        aliveParty: (state) => state.party.filter(p => p.stats.hp > 0),
-        
-        // Comprueba si todo el grupo ha muerto
-        isGameOver: (state) => state.party.length > 0 && state.party.every(p => p.stats.hp <= 0),
-        
-        // Devuelve el personaje activo (para la UI)
-        activeCharId: (state) => state.party.length > 0 ? state.party[0].id : null
-    },
-    
     actions: {
         /**
-         * Inicializa el juego.
-         * Prioridad: Argumento > LocalStorage > Backend Default
+         * NUEVA ACCIÓN: Guarda de forma segura con Hashing en el backend local
          */
-        async initializeGame(selectedParty = null) {
+        async saveSecurely() {
+            try {
+                const payload = {
+                    party: this.party,
+                    currentScene: this.currentScene,
+                    history: this.history,
+                    gameId: this.gameId
+                };
+                
+                // Llamamos a la nueva ruta de seguridad que creamos en el backend
+                await api.post('/game/offline-save', payload);
+                this.isSynced = true;
+                console.log("🛡️ Estado sellado con Hash en el sistema local.");
+            } catch (err) {
+                console.error("Error al sellar la partida:", err);
+                this.isSynced = false;
+            }
+        },
+
+        /**
+         * Inicializa la aventura buscando primero el archivo sellado (.vlk)
+         */
+async initializeGame(selectedParty = null) {
             this.isLoading = true;
             this.error = null;
 
             try {
-                let partyToSend = [];
+                // Pequeña espera de seguridad (500ms) para que el servidor Express 
+                // tenga tiempo de abrir el puerto 3000 tras el arranque de Electron.
+                await new Promise(resolve => setTimeout(resolve, 500));
 
-                // 1. Determinar qué party usar
-                if (selectedParty && selectedParty.length > 0) {
-                    // Viene desde la pantalla de selección
-                    partyToSend = selectedParty;
-                    // Guardamos backup inmediato
-                    localStorage.setItem('valkrypt_party_backup', JSON.stringify(partyToSend));
-                } else {
-                    // Intento de recuperación por F5 (Recarga)
-                    const savedParty = localStorage.getItem('valkrypt_party_backup');
-                    if (savedParty) {
-                        partyToSend = JSON.parse(savedParty);
+                // 1. Intentamos cargar la partida segura del PC (Anti-cheat)
+                let savedData = null;
+                try {
+                    const response = await api.get('/game/offline-load');
+                    // Verificamos si response.data existe (evita errores si el server no responde bien)
+                    if (response && response.data && response.data.success) {
+                        savedData = response.data.data;
+                        console.log("📦 Partida recuperada y validada por el servidor local.");
+                        this.syncStatus = 'synced'; // Ponemos el modo local en verde
                     }
+                } catch (e) {
+                    console.log("No hay partida previa o firma inválida. Iniciando nueva.");
                 }
 
-                console.log("📤 Iniciando juego con party:", partyToSend);
+                // 2. Prioridad: Selección nueva > Partida Validada
+                if (selectedParty && selectedParty.length > 0) {
+                    this.party = selectedParty;
+                    const response = await api.startGame(this.party); 
+                    const data = response.data.data || response.data;
+                    this.currentScene = data.scene;
+                } else if (savedData) {
+                    this.party = savedData.party;
+                    this.currentScene = savedData.currentScene;
+                    this.history = savedData.history || [];
+                    this.gameId = savedData.gameId;
+                } else {
+                    throw new Error("No hay un grupo de héroes ni partida guardada.");
+                }
 
-                // 2. Llamada al Backend
-                // Nota: Asegúrate de que tu backend acepte { party: [...] } en el body
-                const response = await api.startGame(partyToSend); 
-                
-                // 3. Actualizar Estado
-                const data = response.data.data || response.data; // Compatibilidad de estructura
-                this.currentScene = data.scene;
-                
-                // Si el backend devuelve una party procesada, úsala. Si no, usa la local.
-                this.party = (data.party && data.party.length > 0) ? data.party : partyToSend;
-                
-                this.gameId = data.gameId || Date.now(); // Simulación de ID si no viene
-                this.isCombatMode = false;
+                // Guardamos el estado inicial de forma segura en el PC
+                await this.saveSecurely();
+                this.syncStatus = 'synced';
 
             } catch (err) {
-                this.error = "No se pudo conectar con el Reino (Error de API).";
-                console.error("❌ Error critical initializeGame:", err);
-                // Fallback de emergencia para desarrollo frontend
-                if (selectedParty) this.party = selectedParty; 
+                // Si llegamos aquí, el servidor local no responde o no hay datos
+                this.syncStatus = 'offline'; 
+                this.error = "Los dioses no responden. El núcleo de Valkrypt está en modo offline.";
+                console.error("❌ Error de inicialización:", err);
             } finally {
                 this.isLoading = false;
             }
         },
 
-        /**
-         * Maneja la elección del jugador (Narrativa o Combate)
-         */
         async chooseOption(option) {
-            if (this.isLoading) return; // Evitar doble click
+            if (this.isLoading) return;
 
-            // --- BRANCH A: INICIO DE COMBATE ---
             if (option.type === 'START_COMBAT' || option.type === 'combat') {
-                console.log("⚔️ Iniciando Combate...");
                 this.isCombatMode = true;
-                
                 const combatStore = useCombatStore();
-                
-                // Pasar el ID del enemigo y la party actual al store de combate
-                // 'next_scene' aquí actúa como ID del encuentro (ej: 'goblin_ambush')
                 await combatStore.initCombat(option.next_scene, this.party);
                 return;
             } 
 
-            // --- BRANCH B: NARRATIVA ESTÁNDAR ---
             this.isLoading = true;
-            this.error = null;
-            
             try {
-                // Enviamos la elección al backend
                 const response = await api.makeChoice(option.next_scene);
                 const data = response.data.data || response.data;
 
-                // Actualizamos escena
                 this.currentScene = data;
-                
-                // Si la decisión afectó a la party (ej: trampa), actualizamos
                 if (data.partyUpdates) {
                     this.party = data.partyUpdates;
-                    // Actualizar backup local
-                    localStorage.setItem('valkrypt_party_backup', JSON.stringify(this.party));
                 }
 
-                // Guardar historial simple
                 this.history.push(option.text);
+                
+                // CADA VEZ que tomamos una decisión, sellamos la partida localmente
+                await this.saveSecurely();
 
             } catch (err) {
-                this.error = "El destino es incierto... (Error de red)";
-                console.error(err);
+                this.error = "Error de comunicación con el motor de Valkrypt.";
             } finally {
                 this.isLoading = false;
             }
         },
 
-        /**
-         * Llamado por CombatStore cuando termina la pelea
-         */
         async returnToNarrative(victory, combatResultData = null) {
             this.isCombatMode = false;
             
             if (victory) {
-                console.log("🏆 Victoria. Volviendo a narrativa...");
-                
-                // Si hay actualizaciones de stats post-combate (daño recibido), aplicarlas
-                if (combatResultData && combatResultData.survivingParty) {
+                if (combatResultData?.survivingParty) {
                     this.party = combatResultData.survivingParty;
-                    localStorage.setItem('valkrypt_party_backup', JSON.stringify(this.party));
                 }
 
-                // Cargar la siguiente escena (definida en el resultado del combate o por defecto)
-                const nextSceneId = combatResultData?.nextScene || this.currentScene?.next_scene_victory || 'scene_victory_default';
-                
-                // Forzar carga de escena
-                await this.chooseOption({ next_scene: nextSceneId, type: 'narrative', text: 'Victoria' });
+                // Tras la victoria, sellamos el progreso antes de seguir
+                await this.saveSecurely();
 
+                const nextSceneId = combatResultData?.nextScene || this.currentScene?.next_scene_victory;
+                if (nextSceneId) {
+                    await this.chooseOption({ next_scene: nextSceneId, type: 'narrative', text: 'Tras la batalla...' });
+                }
             } else {
-                // GAME OVER
-                this.currentScene = {
-                    title: "MUERTE",
-                    description: "Tus héroes han caído. La oscuridad consume sus almas.",
-                    options: [
-                        { text: "Intentar de nuevo", next_scene: 'restart', type: 'restart' }
-                    ]
-                };
-                // Limpiar storage para evitar bucles de muerte al recargar
-                localStorage.removeItem('valkrypt_party_backup');
+                // Si mueren, el servidor local podría borrar el archivo o marcarlo como "Muerto"
+                this.resetGame();
             }
         },
 
-        /**
-         * Helper para actualizar stats localmente (UI Update optimista)
-         * Útil para trampas, pociones o efectos fuera de combate
-         */
-        updateCharacterStatus(charId, updates) {
-            const charIndex = this.party.findIndex(c => c.id === charId);
-            if (charIndex !== -1) {
-                // Merge de stats (ej: { hp: 5 })
-                this.party[charIndex].stats = { 
-                    ...this.party[charIndex].stats, 
-                    ...updates 
-                };
-                
-                // Limites (no bajar de 0, no subir de max)
-                if (this.party[charIndex].stats.hp < 0) this.party[charIndex].stats.hp = 0;
-                if (this.party[charIndex].stats.hp > this.party[charIndex].stats.maxHp) {
-                    this.party[charIndex].stats.hp = this.party[charIndex].stats.maxHp;
-                }
-            }
-        },
-
-        // Acción especial para reiniciar
         resetGame() {
-            localStorage.removeItem('valkrypt_party_backup');
-            window.location.href = '/select'; // Vuelta a la selección
+            // Aquí podrías añadir una llamada al backend para borrar el local_save.vlk
+            this.$reset();
+            window.location.href = '/'; 
         }
     }
 });

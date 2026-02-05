@@ -1,5 +1,10 @@
 /* src/assets/styles/main.scss */
+
+// Importamos las fuentes necesarias para los nuevos estilos
+@import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=EB+Garamond:ital,wght@0,400;0,700;1,400&family=Cinzel:wght@400;700&display=swap');
+
 :root {
+  /* TUS VARIABLES ORIGINALES  */
   --color-background-dark: #1a1a1a;
   --color-background-section: #252525;
   --color-text-primary: #cccccc;
@@ -13,27 +18,38 @@
   
   --font-heading: 'Cinzel Decorative', cursive;
   --font-body: 'EB Garamond', serif;
+
+  /* AÑADIDOS (Nuevas variables para efectos avanzados) */
+  --color-blood: #8a1c1c;
+  --color-magic: #7d3f98;
+  --glass-bg: rgba(15, 15, 18, 0.85);
+  --font-interface: 'Cinzel', serif;
 }
 
 body {
   background-color: #0d0d0d;
+  /* Añadimos una textura sutil de fondo sin quitar tu color */
+  background-image: radial-gradient(circle at 50% 50%, rgba(40, 10, 10, 0.1) 0%, transparent 80%);
   color: var(--color-text-primary);
   font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
+  margin: 0;
+  min-height: 100vh;
 }
 
 h1, h2, h3, h4, h5 { font-family: var(--font-heading); }
 
-/* Títulos estilo Aethelgard */
+/* Títulos estilo Aethelgard (Tus originales + mejora visual) */
 .section-title {
   color: var(--color-accent-gold);
   border-bottom: 1px solid var(--color-border-light);
   padding-bottom: 10px;
   margin-bottom: 25px;
   font-size: 1.9em;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.5);
 }
 
-/* Botones estilo Aethelgard */
+/* Botones estilo Aethelgard (Tus originales + efectos de interacción) */
 .btn-aethelgard {
   background-color: var(--color-accent-dark-red);
   border: 1px solid #8a4f4f;
@@ -44,17 +60,70 @@ h1, h2, h3, h4, h5 { font-family: var(--font-heading); }
   transition: all 0.3s;
   text-decoration: none;
   display: inline-block;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
   
   &:hover {
     background-color: #8a4f4f;
     border-color: #a56f6f;
     color: #fff;
-    box-shadow: 0 0 15px rgba(184, 169, 117, 0.2);
+    box-shadow: 0 0 15px rgba(184, 169, 117, 0.3);
+    transform: translateY(-2px); // Añadido para feedback táctil
+  }
+  
+  &:active {
+    transform: translateY(0);
   }
   
   &:disabled {
     background-color: #333;
     border-color: #444;
     cursor: not-allowed;
+    opacity: 0.6;
   }
+}
+
+
+/* Scrollbar Personalizada */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-background-dark);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-accent-gold);
+  border-radius: 3px;
+  &:hover { background: var(--color-accent-bronze); }
+}
+
+/* Clase para Paneles con efecto Cristal */
+.panel-glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--color-border-light);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+/* Animaciones Globales de entrada */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-entrance {
+  animation: fadeInUp 0.6s ease-out forwards;
+}
+
+/* Estilo para resaltar texto en la historia (usado en StoryText.vue) */
+.text-highlight {
+  color: var(--color-accent-gold);
+  font-weight: bold;
+  text-shadow: 0 0 8px rgba(184, 169, 117, 0.4);
+}
+
+.text-danger {
+  color: var(--color-blood);
+  font-weight: bold;
 }

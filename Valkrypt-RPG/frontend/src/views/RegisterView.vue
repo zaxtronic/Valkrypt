@@ -2,9 +2,18 @@
   <div class="auth-container">
     <div class="auth-box">
       <h1 class="title">VALKRYPT</h1>
-      <h2 class="subtitle">Nuevo Recluta</h2>
+      <h2 class="subtitle">
+        {{ isServerDown ? 'SERVIDOR NO DISPONIBLE' : 'Nuevo Recluta' }}
+      </h2>
 
-      <form @submit.prevent="handleRegister">
+      <div v-if="isServerDown" class="offline-notice">
+        <p>No se pueden registrar nuevas crónicas en la nube en este momento.</p>
+        <button @click="router.push('/login')" class="btn-aethelgard w-100 mt-3">
+          VOLVER AL LOGIN (MODO LOCAL)
+        </button>
+      </div>
+
+      <form v-else @submit.prevent="handleRegister">
         <div class="form-group">
           <label>Nombre de Usuario</label>
           <input 
@@ -55,7 +64,7 @@
         </button>
       </form>
 
-      <div class="mt-4 text-center login-link">
+      <div v-if="!isServerDown" class="mt-4 text-center login-link">
         ¿Ya tienes cuenta? 
         <router-link to="/login" class="link-gold">Entrar al Bastión</router-link>
       </div>
@@ -64,7 +73,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import api from '../services/api';
 
@@ -76,6 +85,16 @@ const confirmPassword = ref('');
 const error = ref('');
 const successMsg = ref('');
 const isLoading = ref(false);
+const isServerDown = ref(false);
+
+// Verificación inicial de conexión
+onMounted(async () => {
+  try {
+    await api.getStatus();
+  } catch (err) {
+    isServerDown.value = true;
+  }
+});
 
 const handleRegister = async () => {
   error.value = '';
@@ -89,10 +108,7 @@ const handleRegister = async () => {
   isLoading.value = true;
 
   try {
-    // Llamada al backend
-    // Asegúrate de que en services/api.js tienes algo como:
-    // register(data) { return api.post('/auth/register', data); }
-    const response = await api.register ({
+    const response = await api.register({
       username: username.value,
       email: email.value,
       password: password.value
@@ -107,6 +123,8 @@ const handleRegister = async () => {
   } catch (err) {
     console.error(err);
     error.value = err.response?.data?.error || "Error al conectar con el servidor.";
+    // Si falla por conexión durante el envío, activamos modo offline
+    if (!err.response) isServerDown.value = true;
   } finally {
     isLoading.value = false;
   }
@@ -114,6 +132,17 @@ const handleRegister = async () => {
 </script>
 
 <style scoped lang="scss">
+/* Añadimos un estilo para el aviso offline */
+.offline-notice {
+  text-align: center;
+  color: #a0a0a0;
+  padding: 20px;
+  border: 1px dashed #8a1c1c;
+  background: rgba(138, 28, 28, 0.05);
+  font-family: 'Lato', sans-serif;
+}
+
+/* El resto de estilos se mantienen igual que en tu archivo original */
 .auth-container {
   height: 100vh;
   display: flex;

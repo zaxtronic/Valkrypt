@@ -2,7 +2,9 @@
   <div class="auth-container">
     <div class="auth-box">
       <h1 class="title">VALKRYPT</h1>
-      <h2 class="subtitle">Identifícate</h2>
+      <h2 class="subtitle">
+        {{ isServerDown ? 'MODO LOCAL ACTIVO' : 'IDENTIFÍCATE' }}
+      </h2>
 
       <form @submit.prevent="handleLogin">
         <div class="form-group">
@@ -15,33 +17,38 @@
           />
         </div>
         
-        <div class="form-group">
+        <div class="form-group" v-if="!isServerDown">
           <label>Contraseña</label>
           <input 
             v-model="password" 
             type="password" 
             placeholder="******" 
-            required 
+            :required="!isServerDown" 
           />
         </div>
 
         <div v-if="error" class="error-msg">{{ error }}</div>
 
         <button type="submit" class="btn-aethelgard w-100 mt-4" :disabled="isLoading">
-          {{ isLoading ? 'ACCEDIENDO...' : 'ENTRAR' }}
+          <span v-if="isLoading">PROCESANDO...</span>
+          <span v-else-if="isServerDown">ENTRAR SIN CONEXIÓN</span>
+          <span v-else>ENTRAR AL BASTIÓN</span>
         </button>
       </form>
 
-      <div class="mt-4 text-center login-link">
+      <div class="mt-4 text-center login-link" v-if="!isServerDown">
         ¿Nuevo en el Bastión? 
         <router-link to="/register" class="link-gold">Reclútate aquí</router-link>
+      </div>
+      <div class="mt-4 text-center login-link" v-else>
+        <small style="color: #8a1c1c;">Servidor no detectado. Los datos se guardarán en este PC.</small>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import api from '../services/api';
 
@@ -50,11 +57,41 @@ const username = ref('');
 const password = ref('');
 const error = ref('');
 const isLoading = ref(false);
+const isServerDown = ref(false);
+
+// Al montar el componente, verificamos si el backend está vivo
+onMounted(async () => {
+  try {
+    await api.getStatus();
+    isServerDown.value = false;
+  } catch (err) {
+    isServerDown.value = true;
+    error.value = "Atención: Trabajando en modo local (Offline).";
+  }
+});
 
 const handleLogin = async () => {
   error.value = '';
   isLoading.value = true;
 
+  // LÓGICA MODO LOCAL (OFFLINE)
+  if (isServerDown.value) {
+    const offlineUser = { 
+      id: 'local_user_' + Date.now(), 
+      username: username.value, 
+      isOffline: true 
+    };
+    
+    // Guardamos un token ficticio y el objeto usuario marcado como offline
+    localStorage.setItem('token', 'offline_access_token');
+    localStorage.setItem('user', JSON.stringify(offlineUser));
+    
+    console.log("Accediendo en modo local...");
+    router.push('/');
+    return;
+  }
+
+  // LÓGICA MODO ONLINE (CONEXIÓN CON ATLAS)
   try {
     const response = await api.login({
       username: username.value,
@@ -62,11 +99,8 @@ const handleLogin = async () => {
     });
 
     if (response.data.success) {
-      // Guardar token y usuario en localStorage para persistencia
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('user', JSON.stringify(response.data.user));
-      
-      // Ir a la selección de personaje o inicio
       router.push('/');
     }
   } catch (err) {
@@ -74,7 +108,9 @@ const handleLogin = async () => {
     if (err.response && err.response.status === 401) {
       error.value = "Credenciales incorrectas.";
     } else {
-      error.value = "Error de conexión con el servidor.";
+      // Si el servidor cae justo en el login, activamos el modo offline
+      isServerDown.value = true;
+      error.value = "Se ha perdido la conexión. ¿Entrar en modo local?";
     }
   } finally {
     isLoading.value = false;
@@ -83,7 +119,7 @@ const handleLogin = async () => {
 </script>
 
 <style scoped lang="scss">
-/* Mismos estilos que RegisterView para coherencia */
+/* Se mantienen tus estilos originales */
 .auth-container {
   height: 100vh;
   display: flex;
@@ -98,7 +134,7 @@ const handleLogin = async () => {
   border: 1px solid #c5a059;
   padding: 40px;
   width: 100%;
-  max-width: 400px; /* Un poco más estrecho que registro */
+  max-width: 400px;
   box-shadow: 0 0 30px rgba(197, 160, 89, 0.15);
   position: relative;
 
